@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Lobster body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 C44,30 36,38 36,48 C36,58 44,78 54,78 C64,78 72,58 72,48 C72,38 64,30 54,30 Z"/>
+    
+    <!-- Left claw -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,42 C26,38 22,40 20,44 C18,48 20,54 24,56 C28,58 34,54 36,50 C34,46 32,44 30,42 Z"/>
+    
+    <!-- Right claw -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,42 C82,38 86,40 88,44 C90,48 88,54 84,56 C80,58 74,54 72,50 C74,46 76,44 78,42 Z"/>
+    
+    <!-- Eyes -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M48,44 C48,46 46,48 44,48 C42,48 40,46 40,44 C40,42 42,40 44,40 C46,40 48,42 48,44 Z"/>
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M68,44 C68,46 66,48 64,48 C62,48 60,46 60,44 C60,42 62,40 64,40 C66,40 68,42 68,44 Z"/>
+    
+    <!-- Antennae -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillType="evenOdd"
+        android:pathData="M44,32 Q40,24 38,20"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillType="evenOdd"
+        android:pathData="M64,32 Q68,24 70,20"/>
+</vector>

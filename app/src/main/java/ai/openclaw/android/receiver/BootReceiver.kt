@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import ai.openclaw.android.service.OpenClawGatewayService
+import ai.openclaw.android.util.SettingsManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 /**
  * 부팅 완료 시 자동 시작
@@ -19,18 +22,22 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             Log.i(TAG, "Boot completed, checking auto-start preference")
             
-            // TODO: 사용자 설정에 따라 자동 시작 여부 결정
-            // val prefs = context.getSharedPreferences("openclaw_prefs", Context.MODE_PRIVATE)
-            // if (prefs.getBoolean("auto_start", false)) {
-            //     startGateway(context)
-            // }
+            // 설정에 따라 자동 시작 여부 결정
+            val settingsManager = SettingsManager(context)
             
-            // 우선은 자동 시작
-            startGateway(context)
+            runBlocking {
+                val autoStart = settingsManager.autoStart.first()
+                Log.i(TAG, "Auto-start enabled: $autoStart")
+                
+                if (autoStart) {
+                    startGateway(context)
+                }
+            }
         }
     }
     
     private fun startGateway(context: Context) {
+        Log.i(TAG, "Starting OpenClaw Gateway...")
         val serviceIntent = Intent(context, OpenClawGatewayService::class.java).apply {
             action = OpenClawGatewayService.ACTION_START
         }

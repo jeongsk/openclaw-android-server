@@ -11,21 +11,33 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ai.openclaw.android.data.SettingsPreferences
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit
 ) {
-    var autoStartEnabled by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val settings = remember { SettingsPreferences(context) }
+
+    // DataStore에서 설정 읽기
+    val autoStartEnabled by settings.autoStartEnabled.collectAsStateWithLifecycle(initialValue = false)
+    val gatewayPort by settings.gatewayPort.collectAsStateWithLifecycle(initialValue = SettingsPreferences.DEFAULT_PORT)
+    val anthropicKey by settings.anthropicApiKey.collectAsStateWithLifecycle(initialValue = "")
+    val openaiKey by settings.openaiApiKey.collectAsStateWithLifecycle(initialValue = "")
+    val telegramToken by settings.telegramBotToken.collectAsStateWithLifecycle(initialValue = "")
+
     var showAdvanced by remember { mutableStateOf(false) }
-    
-    // API 키 상태
-    var anthropicKey by remember { mutableStateOf("") }
-    var openaiKey by remember { mutableStateOf("") }
-    var telegramToken by remember { mutableStateOf("") }
-    var gatewayPort by remember { mutableStateOf("18789") }
+
+    // 임시 입력 상태
+    var portInput by remember { mutableStateOf(gatewayPort.toString()) }
+    var anthropicKeyInput by remember { mutableStateOf(anthropicKey) }
+    var openaiKeyInput by remember { mutableStateOf(openaiKey) }
+    var telegramTokenInput by remember { mutableStateOf(telegramToken) }
     
     Scaffold(
         topBar = {

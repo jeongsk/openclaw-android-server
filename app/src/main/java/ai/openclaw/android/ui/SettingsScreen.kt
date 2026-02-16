@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,13 +67,28 @@ fun SettingsScreen(
                     title = "부팅 시 자동 시작",
                     description = "기기 시작 시 자동으로 Gateway 실행",
                     checked = autoStartEnabled,
-                    onCheckedChange = { autoStartEnabled = it }
+                    onCheckedChange = {
+                        // 비동기로 저장
+                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                            settings.setAutoStart(it)
+                        }
+                    }
                 )
-                
+
                 SettingsInput(
                     title = "Gateway 포트",
-                    value = gatewayPort,
-                    onValueChange = { gatewayPort = it },
+                    value = portInput,
+                    onValueChange = {
+                        portInput = it
+                        // 유효한 포트 번호면 저장
+                        it.toIntOrNull()?.let { port ->
+                            if (port in 1024..65535) {
+                                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                                    settings.setGatewayPort(port)
+                                }
+                            }
+                        }
+                    },
                     placeholder = "18789"
                 )
             }
@@ -83,28 +99,43 @@ fun SettingsScreen(
             SettingsSection(title = "API 키") {
                 SettingsSecureInput(
                     title = "Anthropic API Key",
-                    value = anthropicKey,
-                    onValueChange = { anthropicKey = it },
-                    placeholder = "sk-ant-..."
+                    value = anthropicKeyInput,
+                    onValueChange = { anthropicKeyInput = it },
+                    placeholder = "sk-ant-...",
+                    onSave = {
+                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                            settings.setAnthropicApiKey(anthropicKeyInput)
+                        }
+                    }
                 )
-                
+
                 SettingsSecureInput(
                     title = "OpenAI API Key",
-                    value = openaiKey,
-                    onValueChange = { openaiKey = it },
-                    placeholder = "sk-..."
+                    value = openaiKeyInput,
+                    onValueChange = { openaiKeyInput = it },
+                    placeholder = "sk-...",
+                    onSave = {
+                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                            settings.setOpenaiApiKey(openaiKeyInput)
+                        }
+                    }
                 )
             }
-            
+
             Divider(modifier = Modifier.padding(vertical = 8.dp))
-            
+
             // 채널 설정
             SettingsSection(title = "채널") {
                 SettingsSecureInput(
                     title = "Telegram Bot Token",
-                    value = telegramToken,
-                    onValueChange = { telegramToken = it },
-                    placeholder = "123456:ABC-DEF..."
+                    value = telegramTokenInput,
+                    onValueChange = { telegramTokenInput = it },
+                    placeholder = "123456:ABC-DEF...",
+                    onSave = {
+                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                            settings.setTelegramBotToken(telegramTokenInput)
+                        }
+                    }
                 )
             }
             
@@ -232,10 +263,19 @@ fun SettingsSecureInput(
     title: String,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String = ""
+    placeholder: String = "",
+    onSave: () -> Unit = {}
 ) {
     var visible by remember { mutableStateOf(false) }
-    
+    var hasFocus by remember { mutableStateOf(false) }
+
+    // 포커스 해제 시 저장
+    LaunchedEffect(hasFocus) {
+        if (!hasFocus) {
+            onSave()
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(4.dp))
@@ -243,11 +283,13 @@ fun SettingsSecureInput(
             value = value,
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState -> hasFocus = focusState.hasFocus },
             singleLine = true,
-            visualTransformation = if (visible) 
-                androidx.compose.ui.text.input.VisualTransformation.None 
-            else 
+            visualTransformation = if (visible)
+                androidx.compose.ui.text.input.VisualTransformation.None
+            else
                 androidx.compose.ui.text.input.PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = { visible = !visible }) {

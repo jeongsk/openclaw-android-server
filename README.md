@@ -2,16 +2,41 @@
 
 > 오래된 안드로이드 폰을 OpenClaw Gateway 서버로 변환하는 APK
 
-## 개요
+[![Android CI](https://github.com/jeongsk/openclaw-android-server/actions/workflows/android.yml/badge.svg)](https://github.com/jeongsk/openclaw-android-server/actions/workflows/android.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-이 프로젝트는 안드로이드 폰에서 OpenClaw를 **한 번의 터치**로 실행할 수 있게 해주는 앱입니다.
+## 📱 개요
 
-### 기술 스택
-- **Runtime:** Termux Embedded (Node.js 22)
-- **UI:** Jetpack Compose
-- **Architecture:** MVVM + Foreground Service
+이 프로젝트는 안드로이드 폰에서 **한 번의 터치**로 OpenClaw Gateway를 실행할 수 있게 해주는 앱입니다.
 
-## 아키텍처
+### 왜 이 앱이 필요한가요?
+
+- 📱 **오래된 폰 활용**: 구형 안드로이드 폰을 AI 어시스턴트 서버로 변환
+- 🔌 **24/7 실행**: Foreground Service로 백그라운드에서도 안정적 실행
+- 🌐 **원격 접속**: 같은 WiFi의 다른 기기에서 접속 가능
+- 🔋 **저전력**: 노트북이나 데스크톱 대비 적은 전력 소모
+
+## ✨ 기능
+
+- ✅ **원터치 설치**: 시작 버튼만 누르면 자동 설치
+- ✅ **Termux 환경**: Node.js 22 + OpenClaw 자동 설치
+- ✅ **Foreground Service**: 백그라운드에서도 안정적 실행
+- ✅ **실시간 상태**: 설치 진행률, 실행 상태 표시
+- ✅ **연결 정보**: IP 주소 + 포트 쉽게 확인
+- ✅ **자동 시작**: 부팅 시 자동으로 Gateway 실행
+- ✅ **설정 저장**: API 키, 채널 설정 안전하게 저장
+
+## 🔧 기술 스택
+
+| 구성 요소 | 기술 |
+|---------|------|
+| Runtime | Termux Embedded (Node.js 22) |
+| UI | Jetpack Compose |
+| Architecture | MVVM + Foreground Service |
+| 설정 저장 | DataStore |
+| 백그라운드 | Foreground Service + WorkManager |
+
+## 📖 아키텍처
 
 ```
 ┌─────────────────────────────────────────┐
@@ -27,90 +52,21 @@
 └─────────────────────────────────────────┘
 ```
 
-## 기능
-
-- ✅ 원터치 설치 및 실행
-- ✅ Termux 환경 자동 설정
-- ✅ Node.js 22 자동 설치
-- ✅ OpenClaw 자동 설치
-- ✅ Foreground Service (백그라운드 실행)
-- ✅ 상태 표시 (설치 진행률, 실행 상태)
-- ✅ 연결 정보 표시 (IP + 포트)
-- ✅ 부팅 시 자동 시작
-
-## 설치 방법
-
-### 1. APK 다운로드
-
-```bash
-# 릴리즈 페이지에서 다운로드
-# 또는 직접 빌드
-```
-
-### 2. 권한 허용
-
-앱 설치 후 다음 권한을 허용해야 합니다:
-- 알림 권한
-- 저장소 권한 (일부 기기)
-
-### 3. 시작
-
-"시작" 버튼을 누르면 자동으로:
-1. Termux 환경 설치
-2. Node.js 22 설치
-3. OpenClaw 설치
-4. Gateway 실행
-
-## 빌드
+## 🚀 빠른 시작
 
 ### 요구사항
-- Android Studio Koala 이상
-- JDK 17
-- Android SDK 34
 
-### 빌드 명령
+- 안드로이드 기기 (ARM64, Android 7.0+)
+- 최소 500MB 저장 공간
+- WiFi 연결
 
-```bash
-# 프로젝트 클론
-cd /home/ubuntu/.openclaw/workspace/projects/openclaw-android
+### 설치
 
-# Debug APK 빌드
-./gradlew assembleDebug
-
-# Release APK 빌드
-./gradlew assembleRelease
-```
-
-### APK 위치
-
-```
-app/build/outputs/apk/debug/app-debug.apk
-app/build/outputs/apk/release/app-release.apk
-```
-
-## Termux Bootstrap 준비
-
-> ⚠️ 실제 빌드를 위해서는 Termux Bootstrap 파일이 필요합니다.
-
-### Bootstrap 다운로드
-
-```bash
-# ARM64용 Bootstrap
-wget https://github.com/termux/termux-packages/releases/download/bootstrap-v1.0.0/bootstrap-aarch64.zip
-
-# app/src/main/assets/ 폴더에 복사
-cp bootstrap-aarch64.zip app/src/main/assets/termux-bootstrap.zip
-```
-
-## 사용 방법
-
-### Gateway 실행
-
-1. 앱 실행
-2. "시작" 버튼 클릭
-3. 설치 완료까지 대기 (첫 실행 시 5-10분 소요)
-4. "실행 중" 상태 확인
-5. 표시된 URL로 다른 기기에서 접속
+1. [Releases](https://github.com/jeongsk/openclaw-android-server/releases)에서 APK 다운로드
+2. APK 설치
+3. 권한 허용 (알림, 저장소)
+4. "시작" 버튼 클릭
+5. 설치 완료까지 대기 (첫 실행 시 5-10분)
 
 ### 연결
 
@@ -122,64 +78,53 @@ ws://192.168.1.xxx:18789
 openclaw gateway connect ws://192.168.1.xxx:18789
 ```
 
-## 설정
+## 🛠️ 개발
 
-### API 키 설정
+### 빌드 요구사항
 
-설정 화면에서:
-- Anthropic API Key
-- OpenAI API Key
-- Telegram Bot Token
-- 기타 채널 설정
+- Android Studio Koala (2024.1.1) 이상
+- JDK 17
+- Android SDK 34
 
-### 자동 시작
+### 빌드 방법
 
-부팅 시 자동으로 Gateway를 시작하려면:
-1. 설정 → 자동 시작 활성화
-2. 배터리 최적화 제외 설정
+```bash
+# 클론
+git clone https://github.com/jeongsk/openclaw-android-server.git
+cd openclaw-android-server
 
-## 문제 해결
+# Debug APK 빌드
+./gradlew assembleDebug
 
-### 설치 실패
-
-```
-1. 앱 데이터 삭제 후 재시도
-2. 저장소 권한 확인
-3. 인터넷 연결 확인
+# Release APK 빌드
+./gradlew assembleRelease
 ```
 
-### Gateway 시작 실패
+자세한 내용은 [DEVELOPMENT.md](DEVELOPMENT.md) 참조
 
-```
-1. 로그 확인 (adb logcat | grep OpenClaw)
-2. 포트 18789가 사용 중인지 확인
-3. 메모리 부족 확인
-```
+## 📱 스크린샷
 
-### 연결 안 됨
+| 메인 화면 | 설정 |
+|---------|------|
+| (준비 중) | (준비 중) |
 
-```
-1. 같은 WiFi 네트워크인지 확인
-2. 방화벽 설정 확인
-3. IP 주소 재확인
-```
+## 🤝 기여
 
-## 개발 일정
+Pull Request 환영합니다! 
 
-| 주차 | 작업 | 상태 |
-|-----|------|------|
-| 1주 | 프로젝트 구조, 기본 UI | ✅ 완료 |
-| 2주 | Termux 임베딩, 설치 자동화 | 🔄 진행 중 |
-| 3주 | Foreground Service, 상태 관리 | ⬜ 예정 |
-| 4주 | 테스트, 최적화, 배포 | ⬜ 예정 |
+[CONTRIBUTING.md](CONTRIBUTING.md)를 참조해주세요.
 
-## 기여
+## 📄 라이선스
 
-Pull Request 환영합니다!
+MIT License - [LICENSE](LICENSE)
 
-## 라이선스
+## 🦞 OpenClaw
 
-MIT
+이 프로젝트는 [OpenClaw](https://github.com/openclaw/openclaw)의 안드로이드 런타임입니다.
+
+- Website: https://openclaw.ai
+- Docs: https://docs.openclaw.ai
+- Discord: https://discord.gg/clawd
 
 ---
 

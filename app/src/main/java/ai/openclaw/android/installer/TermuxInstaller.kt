@@ -92,28 +92,34 @@ class TermuxInstaller(private val context: Context) {
     }
     
     /**
-     * Node.js 설치
+     * Node.js 설치 (assets에서 직접 추출)
      */
     suspend fun installNodeJs(): Boolean = withContext(Dispatchers.IO) {
         try {
-            Log.i(TAG, "Installing Node.js...")
-            
-            val result = executeCommand(
-                "pkg install nodejs -y",
-                environment = mapOf(
-                    "PREFIX" to termuxPrefix,
-                    "HOME" to termuxHome,
-                    "PATH" to "$termuxBin:/system/bin"
-                )
-            )
-            
-            if (result == 0) {
-                Log.i(TAG, "Node.js installed: ${getNodeVersion()}")
-                true
-            } else {
-                Log.e(TAG, "Node.js installation failed with code $result")
-                false
+            Log.i(TAG, "Installing Node.js from assets...")
+
+            // Node.js 압축 파일 확인
+            val nodejsArchive = "nodejs/nodejs.zip"
+            val assets = context.assets.list("nodejs") ?: arrayOf()
+            if (!assets.contains("nodejs.zip")) {
+                Log.e(TAG, "Node.js archive not found in assets")
+                return@withContext false
             }
+
+            // 디렉토리 생성
+            File(termuxBin).mkdirs()
+            File(termuxPrefix, "lib").mkdirs()
+
+            // ZIP 압축 해제
+            val inputStream = context.assets.open(nodejsArchive)
+            extractZip(inputStream, File(filesDir))
+            inputStream.close()
+
+            // 실행 권한 설정
+            File(termuxBin, "node").setExecutable(true, false)
+
+            Log.i(TAG, "Node.js installed: ${getNodeVersion()}")
+            true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to install Node.js", e)
             false
@@ -311,7 +317,7 @@ class TermuxInstaller(private val context: Context) {
     }
     
     /**
-     * 명령어 실행
+     * 명령어 실행 (Termux 쉘 사용)
      */
     private fun executeCommand(
         command: String,
@@ -319,13 +325,25 @@ class TermuxInstaller(private val context: Context) {
         workingDir: File = File(termuxHome)
     ): Int {
         val scriptFile = File(workingDir, "temp_script.sh")
-        scriptFile.writeText("#!/system/bin/sh\n$command")
+        scriptFile.writeText("#!/bin/sh\n$command")
         scriptFile.setExecutable(true)
-        
-        val processBuilder = ProcessBuilder("/system/bin/sh", scriptFile.absolutePath)
+
+        // Termux 쉘 사용 (없으면 시스템 쉘 fallback)
+        val shell = if (File(termuxBin, "sh").exists()) {
+            File(termuxBin, "sh").absolutePath
+        } else {
+            "/system/bin/sh"
+        }
+
+        val processBuilder = ProcessBuilder(shell, scriptFile.absolutePath)
         processBuilder.directory(workingDir)
-        processBuilder.environment().putAll(environment)
-        
+        processBuilder.environment().apply {
+            putAll(environment)
+            // Termux 필수 환경변수
+            if (!containsKey("TERM")) put("TERM", "xterm-256color")
+            if (!containsKey("TMPDIR")) put("TMPDIR", "$termuxPrefix/tmp")
+        }
+
         val process = processBuilder.start()
         
         // 출력 읽기

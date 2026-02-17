@@ -15,6 +15,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import ai.openclaw.android.data.SettingsPreferences
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,6 +35,7 @@ fun SettingsScreen(
     val telegramToken by settings.telegramBotToken.collectAsStateWithLifecycle(initialValue = "")
 
     var showAdvanced by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     // 임시 입력 상태
     var portInput by remember { mutableStateOf(gatewayPort.toString()) }
@@ -69,7 +72,7 @@ fun SettingsScreen(
                     checked = autoStartEnabled,
                     onCheckedChange = {
                         // 비동기로 저장
-                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        coroutineScope.launch {
                             settings.setAutoStart(it)
                         }
                     }
@@ -83,7 +86,7 @@ fun SettingsScreen(
                         // 유효한 포트 번호면 저장
                         it.toIntOrNull()?.let { port ->
                             if (port in 1024..65535) {
-                                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                                coroutineScope.launch {
                                     settings.setGatewayPort(port)
                                 }
                             }
@@ -103,7 +106,7 @@ fun SettingsScreen(
                     onValueChange = { anthropicKeyInput = it },
                     placeholder = "sk-ant-...",
                     onSave = {
-                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        coroutineScope.launch {
                             settings.setAnthropicApiKey(anthropicKeyInput)
                         }
                     }
@@ -115,7 +118,7 @@ fun SettingsScreen(
                     onValueChange = { openaiKeyInput = it },
                     placeholder = "sk-...",
                     onSave = {
-                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        coroutineScope.launch {
                             settings.setOpenaiApiKey(openaiKeyInput)
                         }
                     }
@@ -132,7 +135,7 @@ fun SettingsScreen(
                     onValueChange = { telegramTokenInput = it },
                     placeholder = "123456:ABC-DEF...",
                     onSave = {
-                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        coroutineScope.launch {
                             settings.setTelegramBotToken(telegramTokenInput)
                         }
                     }

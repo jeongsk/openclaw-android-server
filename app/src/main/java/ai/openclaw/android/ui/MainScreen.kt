@@ -124,7 +124,7 @@ fun StatusCard(
             Box(contentAlignment = Alignment.Center) {
                 if (installProgress in 1..99) {
                     CircularProgressIndicator(
-                        progress = { installProgress / 100f },
+                        progress = installProgress / 100f,
                         modifier = Modifier.size(64.dp),
                         color = MaterialTheme.colorScheme.primary,
                         strokeWidth = 4.dp
